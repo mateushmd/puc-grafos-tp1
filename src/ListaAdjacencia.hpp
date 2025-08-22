@@ -21,10 +21,10 @@ private:
     int *vertices = nullptr;        ///< Matriz de adjacência para armazenar as conexões entre vértices.
 
     int tArestas;
-    int *arestas;
+    int *arestas = nullptr;
 
     int tLabels;
-    int *labels;           ///< Vetor que mapeia o label do vértice para o índice na matriz.
+    int *labels = nullptr;           ///< Vetor que mapeia o label do vértice para o índice na matriz.
 
     bool _adicionarVertice(int v) {
         if(vertices == nullptr)
@@ -32,14 +32,14 @@ private:
         else
         {
             int *temp = new int[tVertices + 1];
-            std::memcpy(&temp, &vertices, sizeof temp);
+            std::copy(vertices, vertices+tVertices, temp);
             delete[] vertices;
             vertices = temp;
         }
         
         if(vertices == nullptr)
             return false;
-        
+
         vertices[tVertices] = -1;
         tVertices++;
 
@@ -52,7 +52,6 @@ private:
         else {
             int *temp = new int[tArestas + 1];
             std::copy(arestas, arestas+tArestas, temp);
-            //std::memcpy(&temp, &arestas, sizeof temp);
             delete[] arestas;
             arestas = temp;
         }
@@ -107,7 +106,7 @@ public:
         //Criar todas as arestas da matriz arestas[][2]
         for(int i = 0; i < tamanhoArestas; i++){
             _adicionarAresta(arestas[i][0], arestas[i][1]);
-        }
+        } 
     }
 
     /**
@@ -150,7 +149,7 @@ public:
         }
     }
 
-    int getTamanho() const {
+    int getTamanho() {
         return tVertices;
     }
 };

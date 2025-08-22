@@ -31,6 +31,25 @@ private:
         }
     }
 
+    void realocarEspacoVetor(int **origem, int tamanhoOrigem, int tamanhoFinal){
+        int* temp = new int[tamanhoFinal];
+        std::copy(*origem, *origem+tamanhoOrigem, temp);
+        delete[] *origem;
+        *origem = temp;
+        *origem[tamanhoFinal] = -1;
+    }
+
+    void realocarEspacoMatriz(int ***origem, int tamanhoOrigem, int tamanhoFinal){
+        std::cout<<"tam Final: "<<tamanhoFinal<<std::endl;
+        int** temp = new int*[tamanhoFinal];
+        std::copy(*origem, *origem+tamanhoOrigem, temp);
+        delete[] *origem;
+        *origem = temp;
+        for(int i = 0; i < tamanhoOrigem; i++){
+            *origem[i][tamanhoFinal] = -1;
+        }
+    }
+
 
 public:
     /**
@@ -51,8 +70,6 @@ public:
         std::copy(vertices, vertices+tamanho, labels);
 
         this->ordenarLabels();
-
-
 
         this->conexoes = new int*[this->tamanho];
         for(int i = 0; i < tamanho; i++){
@@ -97,17 +114,23 @@ public:
      */
     bool adicionarVertice(unsigned int v) {
         
-        
         this->tamanho++; //Atualizar o tamanho da matriz
-        this->labels = (int*)realloc(labels, this->tamanho * sizeof(int)); //Realocar o vetor de labels
-        this->labels[this->tamanho-1] = v; //Atribuir o novo label
+        realocarEspacoVetor(&this->labels, tamanho-1, tamanho);
         this->ordenarLabels(); //Ordenar labels
     
-        conexoes = (int **)realloc(conexoes, sizeof(int*) * (tamanho)); //Realoc
+        /* std::cout<<"tam Final: "<<tamanhoFinal<<std::endl;
+        int** temp;
+        temp = new int*[tamanhoFinal];
+        std::copy(this->conexoes, this->conexoes+(tamanho-1), temp);
+        delete[] this->conexoes;
+        this->conexoes = temp; */
+        realocarEspacoMatriz(&this->conexoes, tamanho-1, tamanho);
+        //conexoes = (int **)realloc(conexoes, sizeof(int*) * (tamanho)); //Realoc
 
 
-        for(int i = 0; i < tamanho + 1; i++){
-            conexoes[i] = (int*)realloc(conexoes[i], (tamanho) * sizeof(int));
+        for(int i = 0; i < tamanho; i++){
+            realocarEspacoVetor(&conexoes[i], tamanho-1, tamanho);
+            //conexoes[i] = (int*)realloc(conexoes[i], (tamanho) * sizeof(int));
         }
         
         for(int i = 0; i < tamanho + 1; i++){
