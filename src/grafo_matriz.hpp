@@ -17,8 +17,20 @@ private:
     bool direcionado;      ///< Indica se o grafo é direcionado.
     int tamanho;           ///< Quantidade de vértices no grafo.
     int **conexoes;        ///< Matriz de adjacência para armazenar as conexões entre vértices.
-    int tamanhoLabels;     ///< Tamanho do vetor de labels.
     int *labels;           ///< Vetor que mapeia o label do vértice para o índice na matriz.
+
+    void ordenarLabels(){
+        for (int i = 1; i < this->tamanho; i++) {
+            int tmp = labels[i];
+            int j = i - 1;
+            while ( (j >= 0) && (labels[j] > tmp) ){
+                labels[j + 1] = labels[j]; // Deslocamento
+                j--;
+            }
+            labels[j + 1] = tmp;
+        }
+    }
+
 
 public:
     /**
@@ -33,16 +45,14 @@ public:
         : direcionado(direcionado), tamanho(tamanho) {
 
         int maiorLabel = -1;
-        for(int i = 0; i < quantidadeArestas; i++) {
-            if(vertices[i] > maiorLabel)
-                maiorLabel = vertices[i];
-        }
-        labels = new int[maiorLabel + 1];
-        tamanhoLabels = maiorLabel + 1;
 
-        for(int i = 0; i < tamanho; i++) {
-            labels[vertices[i]] = i;
-        }
+        labels = new int[tamanho];
+
+        std::copy(vertices, vertices+tamanho, labels);
+
+        this->ordenarLabels();
+
+
 
         this->conexoes = new int*[this->tamanho];
         for(int i = 0; i < tamanho; i++){
@@ -53,7 +63,7 @@ public:
         }
 
         for(int i = 0; i < quantidadeArestas; i++) {
-            adicionarAresta(arestas[i][0], arestas[i][1]);
+            adicionarAresta(arestas[i][0], arestas[i][1], arestas[i][2]);
         }
     }
 
@@ -64,19 +74,16 @@ public:
         printf("Tamanho: %d\n", tamanho);
         printf("\t");
         
-        for (int i = 0; i < tamanhoLabels; i++) {
-            if(labels[i] != -1)
-                printf("\t%d", i);
+        for (int i = 0; i < tamanho; i++) {
+            printf("\t%d", this->labels[i]);
         }
         std::cout << std::endl;
-        for(int i = 0; i < tamanhoLabels; i++) {
-            if(labels[i] == -1) continue;
+        for(int i = 0; i < tamanho; i++) {
 
-            printf("\t%d", i);
+            printf("\t%d", this->labels[i]);
 
-            for(int j = 0; j < tamanhoLabels; j++) {
-                if(labels[j] != -1) 
-                    printf("\t%d", this->conexoes[labels[i]][labels[j]]);
+            for(int j = 0; j < tamanho; j++) {
+                    printf("\t%d", this->conexoes[i][j]);
             }
 
             std::cout << std::endl; 
@@ -89,32 +96,27 @@ public:
      * @return true se o vértice foi adicionado, false se já existe.
      */
     bool adicionarVertice(unsigned int v) {
-        if(tamanhoLabels <= v) {
-            labels = (int*)realloc(labels, (v + 1) * sizeof(int));
-            
-            for(int i = tamanhoLabels; i < v + 1; i++) {
-                labels[i] = -1;
-            }
+        
+        
+        this->tamanho++; //Atualizar o tamanho da matriz
+        this->labels = (int*)realloc(labels, this->tamanho * sizeof(int)); //Realocar o vetor de labels
+        this->labels[this->tamanho-1] = v; //Atribuir o novo label
+        this->ordenarLabels(); //Ordenar labels
+    
+        conexoes = (int **)realloc(conexoes, sizeof(int*) * (tamanho)); //Realoc
 
-            tamanhoLabels = v + 1;
+
+        for(int i = 0; i < tamanho + 1; i++){
+            conexoes[i] = (int*)realloc(conexoes[i], (tamanho) * sizeof(int));
         }
         
-        if(labels[v] == -1) {
-            labels[v] = tamanho;
-            conexoes = (int **)realloc(conexoes, sizeof(int*) * (tamanho + 1));
+        for(int i = 0; i < tamanho + 1; i++){
+            conexoes[i][tamanho] = -1;
+            conexoes[tamanho][i] = -1;
+        }
 
-            for(int i = 0; i < tamanho + 1; i++){
-                conexoes[i] = (int*)realloc(conexoes[i], (tamanho + 1) * sizeof(int));
-                conexoes[i][tamanho] = -1;
-            }
-            
-            for(int i = 0; i < tamanho + 1; i++){
-                conexoes[tamanho][i] = -1;
-            }
-
-            tamanho = tamanho+1;
-            return true;
-        } 
+        tamanho = tamanho+1;
+        return true;
 
         //já existe vértice com esse nome
         return false;
@@ -128,16 +130,24 @@ public:
      * @return true se a aresta foi adicionada, false caso contrário.
      */
     bool adicionarAresta(int u, int v, int p = 1) {
-        if(tamanhoLabels <= u || tamanhoLabels <= v) {
+        int indiceU = 0, indiceV = 0;
+        while(indiceU < this->tamanho && this->labels[indiceU] != u){
+            indiceU++;
+        }
+
+        while(indiceV < this->tamanho && this->labels[indiceV] != v){
+            indiceV++;
+        }
+        
+        if(indiceU < this->tamanho && indiceV < this->tamanho){
+            conexoes[indiceU][indiceV] = p;
+            if(!direcionado) {
+                conexoes[indiceV][indiceU] = p;
+            }
+        }else{
             return false;
         }
 
-        int _u = labels[u], _v = labels[v];
-        
-        conexoes[_u][_v] = p;
-        if(!direcionado) {
-            conexoes[_v][_u] = p;
-        }
         
         return true;
     }
