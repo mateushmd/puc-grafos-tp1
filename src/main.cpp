@@ -1,10 +1,10 @@
 #include <iostream>
 #include "ListaAdjacencia.hpp"
-#include "grafo_matriz.hpp"
+#include "MatrizAdjacencia.hpp"
 
 int main(void)
 {
-    int vertices[] = { 0, 1, 2, 3 , 5};
+    int vertices[] = { 0, 1, 2, 3, 5};
     
     int **arestas = new int*[4];
     for(int i = 0; i < 4; i++) {
@@ -34,7 +34,7 @@ int main(void)
         std::cout << std::endl;
     }
 
-    Grafo* teste = new Grafo(5, vertices, 4, arestas, false);
+    MatrizAdjacencia* teste = new MatrizAdjacencia(5, vertices, 4, arestas, false);
     if(teste->adicionarVertice(6)){
         std::cout << "leu bunitu!" << std::endl;
     }else{
