@@ -1,3 +1,33 @@
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @file ListaAdjacencia.hpp
+ * @brief Implementação de um grafo utilizando lista de adjacência compacta.
+ *
+ * Esta classe implementa uma estrutura de dados para grafos baseada em listas de adjacência,
+ * armazenando vértices e arestas em arrays dinâmicos. Suporta grafos direcionados e ponderados.
+ * 
+ * Estrutura:
+ * - Cada vértice possui um índice no array `vertices`, que aponta para o início de sua lista de vizinhos no array `arestas`.
+ * - O array `arestas` armazena pares (vértice, peso) representando as conexões.
+ * 
+ * Funcionalidades principais:
+ * - Adição de vértices e arestas (com ou sem peso).
+ * - Impressão da lista de adjacência, com ou sem rótulos personalizados.
+ * - Gerenciamento dinâmico de memória para expansão dos arrays.
+ */
+
+
+
 #pragma once
 
 #include <iostream>
@@ -8,29 +38,57 @@
 
 #include "Implementacao.hpp"
 
+    /**
+* @struct tupla
+* @brief Estrutura auxiliar para armazenar um vizinho e o peso da aresta.
+* 
+* Campos:
+* - vertice: índice do vértice vizinho.
+* - peso: peso da aresta (ou 1 se não ponderado).
+*/
+struct tupla{
+    int vertice;
+    int peso;
+};
+
+
 /**
- * @class Grafo
- * @brief Classe que representa um grafo utilizando matriz de adjacência.
- *
- * Permite a criação de grafos direcionados ou não, com operações para adicionar vértices e arestas,
- * além de imprimir a matriz de adjacência do grafo.
+ * @class ListaAdjacencia
+ * @brief Classe que representa um grafo usando lista de adjacência compacta.
+ * 
+ * Herda de Implementacao e implementa métodos para manipulação de grafos.
+ * 
+ * Membros protegidos:
+ * - int* vertices: Array que armazena o índice inicial da lista de vizinhos de cada vértice.
+ * - int tArestas: Quantidade total de arestas armazenadas.
+ * - tupla* arestas: Array de tuplas representando as arestas (vértice vizinho e peso).
+ * 
+ * Métodos públicos:
+ * - ListaAdjacencia(bool direcionado, bool ponderado): Construtor.
+ * - ~ListaAdjacencia(): Destrutor, libera memória alocada.
+ * - void mostrar() override: Imprime a lista de adjacência.
+ * - void mostrar(unsigned int* labels) override: Imprime a lista de adjacência com rótulos personalizados.
+ * - int adicionarVertice() override: Adiciona um novo vértice ao grafo.
+ * - bool adicionarAresta(int u, int v, int p = 1) override: Adiciona uma aresta entre os vértices u e v, com peso p.
+ * - int getTamanho() override: Retorna o número de vértices no grafo.
  */
 class ListaAdjacencia : public Implementacao {
 protected:
     int *vertices = nullptr;        ///< Matriz de adjacência para armazenar as conexões entre vértices.
 
     int tArestas;
-    int *arestas = nullptr;
+    tupla *arestas = nullptr;
 public:
+
     /**
-     * @brief Construtor da classe Grafo.
-     * @param tamanho Quantidade de vértices.
-     * @param vertices Vetor com os labels dos vértices.
-     * @param quantidadeArestas Quantidade de arestas.
-     * @param arestas Matriz com as arestas (pares de vértices).
-     * @param direcionado Indica se o grafo é direcionado (padrão: false).
+     * @brief Construtor da classe ListaAdjacencia.
+     * 
+     * Inicializa um grafo vazio, configurando se é direcionado e/ou ponderado.
+     * Inicializa os ponteiros de vértices e arestas como nulos e os contadores como zero.
+     * 
+     * @param direcionado Indica se o grafo é direcionado.
+     * @param ponderado Indica se o grafo é ponderado.
      */
-    
     ListaAdjacencia(bool direcionado, bool ponderado){  
         this-> direcionado = direcionado; 
         this-> ponderado = ponderado;
@@ -38,13 +96,22 @@ public:
         this-> tArestas = 0;
     }
 
+
+    /**
+     * @brief Destrutor da classe ListaAdjacencia.
+     * 
+     * Libera a memória alocada dinamicamente para os arrays de vértices e arestas.
+     */
     ~ListaAdjacencia() override {
         delete[] this->arestas;
         delete[] this->vertices;
     }
 
     /**
-     * @brief Imprime a matriz de adjacência do grafo.
+     * @brief Imprime a lista de adjacência do grafo.
+     * 
+     * Exibe, para cada vértice, seus vizinhos e os pesos das arestas (se ponderado).
+     * Mostra também o grau de cada vértice.
      */
     void mostrar() override {
         // Imprime cabeçalho com quantidade de vértices e arestas armazenadas
@@ -74,7 +141,7 @@ public:
             } else {
                 // Percorre a lista de vizinhos e imprime cada vizinho
                 for (int j = inicio; j < fim; j++) {
-                    std::cout << arestas[j] << " ";
+                    std::cout << arestas[j].vertice<<"(" << arestas[j].peso << ")" << " ";
                 }
             }
 
@@ -83,6 +150,14 @@ public:
         }
     }
 
+    /**
+     * @brief Imprime a lista de adjacência do grafo utilizando rótulos personalizados.
+     * 
+     * Exibe, para cada vértice, seus vizinhos e os pesos das arestas (se ponderado),
+     * utilizando os rótulos fornecidos no array labels.
+     * 
+     * @param labels Array de rótulos personalizados para os vértices.
+     */
     void mostrar(unsigned int *labels) override {
         // Imprime cabeçalho com quantidade de vértices e arestas armazenadas
         std::cout << "Lista de Adjacência (" << tamanho << " vértices, "
@@ -111,7 +186,7 @@ public:
             } else {
                 // Percorre a lista de vizinhos e imprime cada vizinho
                 for (int j = inicio; j < fim; j++) {
-                    std::cout << labels[arestas[j]] << " ";
+                   std::cout << arestas[j].vertice<<"(" << arestas[j].peso << ")" << " ";
                 }
             }
 
@@ -120,6 +195,13 @@ public:
         }
     }
 
+    /**
+     * @brief Adiciona um novo vértice ao grafo.
+     * 
+     * Realoca o array de vértices para acomodar o novo vértice e inicializa sua lista de adjacência como vazia.
+     * 
+     * @return Novo tamanho do grafo (quantidade de vértices) ou -1 em caso de falha de alocação.
+     */
     int adicionarVertice() override {
         if(vertices == nullptr)
             vertices = new int[1];
@@ -140,15 +222,28 @@ public:
         return tamanho;
     }
 
+
+    /**
+     * @brief Adiciona uma aresta entre dois vértices.
+     * 
+     * Insere uma nova aresta do vértice u para o vértice v, com peso p (ou 1 se não ponderado).
+     * Se o grafo não for direcionado, adiciona também a aresta inversa.
+     * Realoca e ajusta os arrays conforme necessário.
+     * 
+     * @param u Índice do vértice de origem.
+     * @param v Índice do vértice de destino.
+     * @param p Peso da aresta (opcional, padrão 1).
+     * @return true se a aresta foi adicionada com sucesso, false em caso de falha de alocação.
+     */
     bool adicionarAresta(int u, int v, int p = 1) override {
         int aumentarTamanho = 1;
         if(direcionado){
             aumentarTamanho+= 1;
         }
         if(arestas == nullptr)
-            arestas = new int[aumentarTamanho];
+            arestas = new tupla[aumentarTamanho];
         else {
-            int *temp = new int[tArestas + aumentarTamanho];
+            tupla *temp = new tupla[tArestas + aumentarTamanho];
             std::copy(arestas, arestas+tArestas, temp);
             delete[] arestas;
             arestas = temp;
@@ -176,7 +271,11 @@ public:
                 
             if(vertices[u] == -1)
                 vertices[u] = endPos;
-            arestas[endPos] = v;
+            arestas[endPos].vertice = v;
+            if(ponderado)
+                arestas[endPos].peso = p;
+            else
+                arestas[endPos].peso = 1;
         }
         else if(vertices[u] == -1)
             vertices[u] = tArestas;
@@ -204,8 +303,12 @@ public:
                     
                 if(vertices[v] == -1)
                     vertices[v] = endPos;
-                arestas[endPos] = u;
-            }
+                arestas[endPos].vertice = u;
+                if(ponderado)
+                    arestas[endPos].peso = p;
+                else
+                    arestas[endPos].peso = 1;
+                }
             else if(vertices[v] == -1)
                 vertices[v] = tArestas;
         }
@@ -214,7 +317,12 @@ public:
 
         return true;
     }
-
+    
+    /**
+     * @brief Retorna o número de vértices do grafo.
+     * 
+     * @return Quantidade de vértices atualmente no grafo.
+     */
     int getTamanho() override {
         return this->tamanho;
     }

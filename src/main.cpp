@@ -17,7 +17,7 @@ int main(){
         for(int j = i + 1; j < TAM; j++)
             teste->adicionarAresta(i, j);
     } */
-   teste->adicionarAresta(3, 4);
+   teste->adicionarAresta(3, 4, 3);
 
     teste->mostrar();
 }
