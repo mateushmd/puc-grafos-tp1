@@ -1,4 +1,3 @@
 BasedOnStyle: LLVM   # start from a known base style
 IndentWidth: 4       # use 4 spaces per indent
 UseTab: Never        # use spaces, not tabs
-BreakBeforeBraces: Allman
