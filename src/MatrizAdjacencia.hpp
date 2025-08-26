@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Implementacao.hpp"
+
 /**
  * @class Grafo
  * @brief Classe que representa um grafo utilizando matriz de adjacência.
@@ -12,41 +14,10 @@
  * Permite a criação de grafos direcionados ou não, com operações para adicionar vértices e arestas,
  * além de imprimir a matriz de adjacência do grafo.
  */
-class MatrizAdjacencia {
+class MatrizAdjacencia : public Implementacao {
 private:
-    bool direcionado;      ///< Indica se o grafo é direcionado.
-    int tamanho;           ///< Quantidade de vértices no grafo.
-    int **arestas;        ///< Matriz de adjacência para armazenar as conexões entre vértices.
-    int *labels;           ///< Vetor que mapeia o label do vértice para o índice na matriz.
-
-    void ordenarLabels(){
-        for (int i = 1; i < this->tamanho; i++) {
-            int tmp = labels[i];
-            int j = i - 1;
-            while ( (j >= 0) && (labels[j] > tmp) ){
-                labels[j + 1] = labels[j]; // Deslocamento
-                j--;
-            }
-            labels[j + 1] = tmp;
-        }
-    }
-
-    int buscarLabel(int buscar){
-        int resp = -1;
-        int dir = this->tamanho - 1, esq = 0, meio;
-        while (esq <= dir) {
-            meio = (esq + dir) / 2;
-            if (buscar == this->labels[meio]){
-                resp = meio;
-                esq = this->tamanho;
-            } else if (buscar > this->labels[meio]){
-                esq = meio + 1;
-            } else {
-                dir = meio - 1;
-            }
-        }
-        return resp;
-    }
+    int **arestas = nullptr;        ///< Matriz de adjacência para armazenar as conexões entre vértices.
+    int ultimoVertice;
 
     void realocarEspacoVetor(int **origem, int tamanhoOrigem, int tamanhoFinal){
         int* temp = new int[tamanhoFinal]; //Criando vetor com o novo tamanho
@@ -81,30 +52,13 @@ public:
      * @param arestas Matriz com as arestas (pares de vértices).
      * @param direcionado Indica se o grafo é direcionado (padrão: false).
      */
-    MatrizAdjacencia(int tamanho, int *vertices, int quantidadeArestas, int **arestas , bool direcionado = false) 
-        : direcionado(direcionado), tamanho(tamanho) {
-        //Alocar espaco e cria o vetor de labels
-        labels = new int[tamanho];
-        std::copy(vertices, vertices+tamanho, labels);
-        this->ordenarLabels();
-
-        //Criando a matriz para as arestas
-        this->arestas = new int*[this->tamanho];
-        for(int i = 0; i < tamanho; i++){
-            this->arestas[i] = new int[this->tamanho];
-            for(int j = 0; j < this->tamanho; j++){
-                this->arestas[i][j] = -1;
-            }
-        }
-
-        //Criar as arestas
-        for(int i = 0; i < quantidadeArestas; i++) {
-            adicionarAresta(arestas[i][0], arestas[i][1], arestas[i][2]);
-        }
+    MatrizAdjacencia(bool direcionado = false, bool ponderado = false) {
+        this->direcionado = direcionado;
+        this->ponderado = ponderado;
+        this->tamanho;
     }
-    ~MatrizAdjacencia(){
-        //Desalocar vetor de labels
-        delete[] this->labels;
+
+    ~MatrizAdjacencia() override {
 
         //Desalocar matriz de arestas
         for(int i = 0; i < this->tamanho; i++){
@@ -117,20 +71,40 @@ public:
     /**
      * @brief Imprime a matriz de adjacência do grafo.
      */
-    void printGrafo() {
+    void mostrar() override {
         printf("Tamanho: %d\n", tamanho);
         printf("\t");
         
         for (int i = 0; i < tamanho; i++) {
-            printf("\t%d", this->labels[i]);
+            printf("\t%d", i);
         }
         std::cout << std::endl;
         for(int i = 0; i < tamanho; i++) {
 
-            printf("\t%d", this->labels[i]);
+            printf("\t%d", i);
 
             for(int j = 0; j < tamanho; j++) {
                     printf("\t%d", this->arestas[i][j]);
+            }
+
+            std::cout << std::endl; 
+        }
+    }
+
+    void mostrar(unsigned int *labels) override {
+        printf("Tamanho: %d\n", tamanho);
+        printf("\t");
+        
+        for (int i = 0; i < tamanho; i++) {
+            printf("\t%d", labels[i]);
+        }
+        std::cout << std::endl;
+        for(int i = 0; i < tamanho; i++) {
+
+            printf("\t%d", labels[i]);
+
+            for(int j = 0; j < tamanho; j++) {
+                    printf("\t%d", arestas[i][j]);
             }
 
             std::cout << std::endl; 
@@ -142,29 +116,24 @@ public:
      * @param v Label do vértice a ser adicionado.
      * @return true se o vértice foi adicionado, false se já existe.
      */
-    bool adicionarVertice(unsigned int v) {
-        
-        if(this->buscarLabel(v) != -1){
-            //já existe vértice com esse nome
-            return false;
-        }else{
-            //Realocar o espaco do vetor de labels
-            realocarEspacoVetor(&this->labels, tamanho, tamanho+1);
-            this->labels[tamanho] = v; //Atribuir novo label
-            this->ordenarLabels(); //Ordenar labels
+    int adicionarVertice() override {
             
+        if(arestas == nullptr){
+            arestas = new int*[1];
+            arestas[0] = new int[1];
+        } else {
             realocarEspacoMatriz(&this->arestas, tamanho, tamanho+1);
-            
-            //Atribuir valores aos novos campos da matriz
-            for(int i = 0; i < tamanho+1; i++){
-                this->arestas[i][tamanho] = -1;
-                this->arestas[tamanho][i] = -1;
-            }
-
-            this->tamanho++; //Atualizar o tamanho da matriz
-            
-            return true;
         }
+        
+        //Atribuir valores aos novos campos da matriz
+        for(int i = 0; i < tamanho+1; i++){
+            this->arestas[i][tamanho] = -1;
+            this->arestas[tamanho][i] = -1;
+        }
+
+        this->tamanho++; //Atualizar o tamanho da matriz
+        
+        return tamanho - 1;
     }
 
     /**
@@ -174,15 +143,19 @@ public:
      * @param p Peso da aresta (padrão: 1).
      * @return true se a aresta foi adicionada, false caso contrário.
      */
-    bool adicionarAresta(int u, int v, int p = 1) {
-        //Buscar os indices do label na matriz
-        int indiceU = this->buscarLabel(u), indiceV = this->buscarLabel(v);
-        
-        //Se os vetores existirem criar as arestas, caso contrario retornar false
-        if(indiceU != -1 && indiceV != -1){
-            this->arestas[indiceU][indiceV] = p;
-            if(!direcionado) {
-                this->arestas[indiceV][indiceU] = p;
+    bool adicionarAresta(int u, int v, int p = 1) override {
+        //Se os vetores forem numeros validos criar as arestas, caso contrario retornar false
+        if((u >= 0 && u < this->tamanho) && (v >= 0 && v < this->tamanho)){
+            if(this->ponderado){
+                this->arestas[v][u] = p;
+                if(!direcionado) {
+                    this->arestas[u][v] = p;
+                }
+            }else {
+                this->arestas[v][u] = 1;
+                if(!direcionado) {
+                    this->arestas[u][v] = 1;
+                }
             }
         }else{
             return false;
@@ -196,7 +169,7 @@ public:
      * @brief Retorna a quantidade de vértices do grafo.
      * @return Número de vértices.
      */
-    int getTamanho() {
+    int getTamanho() override {
         return tamanho;
     }
 };
