@@ -28,11 +28,15 @@
  * de cada posição indica a existência (e peso, se ponderado) de uma aresta 
  * ntre dois vértices.
  */
+
+
 #pragma once
 
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stack>
+#include <queue>
 
 #include "Implementacao.hpp"
 
@@ -221,6 +225,57 @@ class MatrizAdjacencia : public Implementacao {
         }
 
         return false;
+    }
+
+    bool BFS(int v){
+        std::queue<int>* fila = new std::queue<int>();
+        bool* coresVertices = new bool(tamanho);
+        for(int i = 0; i < tamanho; i++)
+            coresVertices[i] = false;
+        fila->push(v);
+        while(!fila->empty()){
+            int verticeAtual = fila->front();
+            fila->pop();
+
+            if(!coresVertices[verticeAtual]){
+                std::cout << verticeAtual << " ";
+                for(int i = 0; i < tamanho; i++){
+                    if(arestas[verticeAtual][i] != -1){
+                        fila->push(i);
+                    }
+                }
+            }
+            delete fila;
+            delete[] coresVertices;
+            coresVertices[verticeAtual] = true;
+        }
+        return true;
+    }
+
+    bool DFS(int v){
+        std::stack<int>* pilha = new std::stack<int>();
+        bool* coresVertices = new bool(tamanho);
+        for(int i = 0; i < tamanho; i++)
+            coresVertices[i] = false;
+        pilha->push(v);
+        while(!pilha->empty()){
+            int verticeAtual = pilha->top();
+            pilha->pop();
+
+            if(!coresVertices[verticeAtual]){
+                std::cout << verticeAtual << " ";
+                for(int i = 0; i < tamanho; i++){
+                    if(arestas[verticeAtual][i] != -1){
+                        pilha->push(i);
+                    }
+                }
+            }
+            coresVertices[verticeAtual] = true;
+        }
+
+        delete[] coresVertices;
+        delete pilha;
+        return true;
     }
 
     /**

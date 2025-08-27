@@ -187,4 +187,33 @@ class Grafo {
      * @return Quantidade de vértices presentes no grafo.
      */
     int getTamanho() { return impl->getTamanho(); }
+
+    void print (){
+        for(int i = 0; i < tLabels; i++)
+            std::cout << labels[i] << " ";
+    }
+
+    bool BFS(int v){
+        if(rotulado){
+            int indiceV = buscarLabel(v);
+            if(indiceV == -1)
+                return false;
+                
+            return impl->BFS(indiceV);
+        } else{
+            return impl->BFS(v);
+        }
+    }
+
+    bool DFS(int v){
+        if(rotulado){
+            int indiceV = buscarLabel(v);
+            if(indiceV == -1)
+                return false;
+                
+            return impl->DFS(indiceV);
+        } else{
+            return impl->DFS(v);
+        }
+    }
 };

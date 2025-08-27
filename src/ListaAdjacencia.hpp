@@ -34,8 +34,8 @@
  * - peso: peso da aresta (ou 1 se não ponderado).
  */
 typedef struct {
-    int vertice;
-    int peso;
+    int vertice = -1;
+    int peso = -1;
 } tupla;
 
 /**
@@ -166,10 +166,17 @@ class ListaAdjacencia : public Implementacao {
             // ximo
             // - caso contrário (último vértice ou próximo sem vizinhos), fim = tot
             // l de arestas
-            int fim = (i < tamanho - 1 && vertices[i + 1] != -1)
+            int fim = tArestas;
+            for(int k = i+1; k < tamanho; k++){
+                if(vertices[k] != -1){
+                    fim = vertices[k];
+                    k = tamanho;
+                }
+            }
+            /* int fim = (i < tamanho - 1 && vertices[i + 1] != -1)
                           ? vertices[i + 1]
                           : tArestas;
-
+ */
             // Calcula o grau do vértice (quantos vizinhos ele tem)
             int grau = (inicio == -1) ? 0 : (fim - inicio);
 
@@ -182,7 +189,7 @@ class ListaAdjacencia : public Implementacao {
             } else {
                 // Percorre a lista de vizinhos e imprime cada vizinho
                 for (int j = inicio; j < fim; j++) {
-                    std::cout << arestas[j].vertice << "(" << arestas[j].peso
+                    std::cout << labels[arestas[j].vertice] << "(" << arestas[j].peso
                               << ")" << " ";
                 }
             }
@@ -217,7 +224,7 @@ class ListaAdjacencia : public Implementacao {
         vertices[tamanho] = -1;
         tamanho++;
 
-        return tamanho;
+        return tamanho-1;
     }
 
     /**
@@ -234,8 +241,11 @@ class ListaAdjacencia : public Implementacao {
      * falha de alocação.
      */
     bool adicionarAresta(int u, int v, int p = 1) override {
-        if (arestas == nullptr)
+        if (arestas == nullptr){
             arestas = new tupla[1];
+            arestas->vertice = v;
+            arestas->peso = p;
+        }
         else {
             tupla *temp = new tupla[tArestas + 1];
             std::copy(arestas, arestas + tArestas, temp);
@@ -248,8 +258,8 @@ class ListaAdjacencia : public Implementacao {
 
         // Se o vértice u não for o último da lista, 
         // é necessário deslocar os ponteiros e arestas
+        int endPos = tArestas;
         if (u < tamanho - 1) {
-            int endPos = tArestas;
             for (int i = u + 1; i < tamanho; i++) {
                 if (vertices[i] != -1) {
                     endPos = vertices[i];
@@ -270,7 +280,10 @@ class ListaAdjacencia : public Implementacao {
             arestas[endPos].peso = p;
         } else if (vertices[u] == -1)
             vertices[u] = tArestas;
-
+        else{
+            arestas[endPos].vertice = v;
+            arestas[endPos].peso = p;
+        }
         tArestas++;
 
         return true;

@@ -52,6 +52,6 @@ class Implementacao {
      * @return Número de vértices.
      */
     virtual int getTamanho() = 0;
-
-    virtual void caminhamentoNivel(int v);
+    virtual bool BFS(int v) = 0;
+    virtual bool DFS(int v) = 0;
 };
