@@ -4,7 +4,7 @@
 #include <chrono>
 #include <iostream>
 
-#define TAM 15 // Reduzido para não poluir excessivamente o terminal
+#define TAM 50 // Reduzido para não poluir excessivamente o terminal
 
 /**
  * @brief Testa e compara as implementações de Matriz e Lista de Adjacência para
@@ -14,7 +14,8 @@
  * @param ponderado Se o grafo é ponderado.
  * @param rotulado Se o grafo é rotulado.
  */
-void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
+void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado,
+                          bool medirImpressoes) {
     std::cout << "\n==========================================================="
                  "====================================="
               << std::endl;
@@ -44,22 +45,30 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
     }
 
     const auto fim_gera_matriz = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> tempo_imprimir_matriz =
+        std::chrono::milliseconds::zero();
 
-    const auto inicio_imprime_matriz =
-        std::chrono::high_resolution_clock::now();
-    grafoMatriz->mostrar();
-    const auto fim_imprime_matriz = std::chrono::high_resolution_clock::now();
+    std::cout << "Matriz de Adjacência" << std::endl; 
+
+    if (medirImpressoes) {
+        const auto inicio_imprime_matriz =
+            std::chrono::high_resolution_clock::now();
+        grafoMatriz->mostrar();
+        const auto fim_imprime_matriz =
+            std::chrono::high_resolution_clock::now();
+
+        tempo_imprimir_matriz = fim_imprime_matriz - inicio_imprime_matriz;
+    }
 
     std::chrono::duration<double, std::milli> tempo_gerar_matriz =
         fim_gera_matriz - inicio_gera_matriz;
-    std::chrono::duration<double, std::milli> tempo_imprimir_matriz =
-        fim_imprime_matriz - inicio_imprime_matriz;
 
     std::cout << "\nTempo para gerar: " << tempo_gerar_matriz.count() << " ms"
               << std::endl;
 
-    std::cout << "\nTempo para exibir: " << tempo_imprimir_matriz.count()
-              << " ms" << std::endl;
+    if (medirImpressoes)
+        std::cout << "\nTempo para exibir: " << tempo_imprimir_matriz.count()
+                  << " ms" << std::endl;
 
     std::cout << "\nTempo total: "
               << tempo_imprimir_matriz.count() + tempo_gerar_matriz.count()
@@ -89,20 +98,29 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
 
     const auto fim_gera_lista = std::chrono::high_resolution_clock::now();
 
-    const auto inicio_imprime_lista = std::chrono::high_resolution_clock::now();
-    grafoLista->mostrar();
-    const auto fim_imprime_lista = std::chrono::high_resolution_clock::now();
-
     std::chrono::duration<double, std::milli> tempo_imprimir_lista =
-        fim_imprime_lista - inicio_imprime_lista;
+        std::chrono::milliseconds::zero();
+
+    std::cout << "Lista de Adjacência" << std::endl;
+
+    if (medirImpressoes) {
+        const auto inicio_imprime_lista =
+            std::chrono::high_resolution_clock::now();
+        grafoLista->mostrar();
+        const auto fim_imprime_lista =
+            std::chrono::high_resolution_clock::now();
+        tempo_imprimir_lista = fim_imprime_lista - inicio_imprime_lista;
+    }
+
     std::chrono::duration<double, std::milli> tempo_gerar_lista =
         fim_gera_lista - inicio_gera_lista;
 
     std::cout << "\nTempo para gerar: " << tempo_gerar_lista.count() << " ms"
               << std::endl;
 
-    std::cout << "\nTempo para exibir: " << tempo_imprimir_lista.count()
-              << " ms" << std::endl;
+    if (medirImpressoes)
+        std::cout << "\nTempo para exibir: " << tempo_imprimir_lista.count()
+                  << " ms" << std::endl;
 
     std::cout << "\nTempo total: "
               << tempo_imprimir_lista.count() + tempo_gerar_lista.count()
@@ -116,7 +134,7 @@ int main() {
         bool direcionado = bool(i & 1);
         bool ponderado = bool(i & 2);
         bool rotulado = bool(i & 4);
-        testarImplementacoes(direcionado, ponderado, rotulado);
+        testarImplementacoes(direcionado, ponderado, rotulado, false);
     }
 
     return 0;
