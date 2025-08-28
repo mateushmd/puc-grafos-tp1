@@ -4,7 +4,7 @@
 #include <chrono>
 #include <iostream>
 
-#define TAM 9 // Reduzido para não poluir excessivamente o terminal
+#define TAM 15 // Reduzido para não poluir excessivamente o terminal
 
 /**
  * @brief Testa e compara as implementações de Matriz e Lista de Adjacência para
@@ -102,9 +102,9 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
 int main() {
     // Gera testes para todas as 8 combinações de tipos de grafo
     for (int i = 0; i < 8; ++i) {
-        bool direcionado = (i & 1) != 0;
-        bool ponderado = (i & 2) != 0;
-        bool rotulado = (i & 4) != 0;
+        bool direcionado = bool(i & 1);
+        bool ponderado = bool(i & 2);
+        bool rotulado = bool(i & 4);
         testarImplementacoes(direcionado, ponderado, rotulado);
     }
 
