@@ -28,7 +28,7 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
 
     // Testa matriz de adjacência
 
-    auto inicio_gera_matriz = std::chrono::high_resolution_clock::now();
+    const auto inicio_gera_matriz = std::chrono::high_resolution_clock::now();
 
     MatrizAdjacencia *matriz = new MatrizAdjacencia();
     Grafo *grafoMatriz = new Grafo(matriz, direcionado, ponderado, rotulado);
@@ -43,11 +43,12 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
         }
     }
 
-    auto fim_gera_matriz = std::chrono::high_resolution_clock::now();
+    const auto fim_gera_matriz = std::chrono::high_resolution_clock::now();
 
-    auto inicio_imprime_matriz = std::chrono::high_resolution_clock::now();
+    const auto inicio_imprime_matriz =
+        std::chrono::high_resolution_clock::now();
     grafoMatriz->mostrar();
-    auto fim_imprime_matriz = std::chrono::high_resolution_clock::now();
+    const auto fim_imprime_matriz = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> tempo_gerar_matriz =
         fim_gera_matriz - inicio_gera_matriz;
@@ -71,7 +72,7 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
 
     // Testa lista de adjacência
 
-    auto inicio_gera_lista = std::chrono::high_resolution_clock::now();
+    const auto inicio_gera_lista = std::chrono::high_resolution_clock::now();
 
     ListaAdjacencia *lista = new ListaAdjacencia();
     Grafo *grafoLista = new Grafo(lista, direcionado, ponderado, rotulado);
@@ -85,11 +86,12 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
                 grafoLista->adicionarAresta(i, j, i + j);
         }
     }
-    auto fim_gera_lista = std::chrono::high_resolution_clock::now();
 
-    auto inicio_imprime_lista = std::chrono::high_resolution_clock::now();
+    const auto fim_gera_lista = std::chrono::high_resolution_clock::now();
+
+    const auto inicio_imprime_lista = std::chrono::high_resolution_clock::now();
     grafoLista->mostrar();
-    auto fim_imprime_lista = std::chrono::high_resolution_clock::now();
+    const auto fim_imprime_lista = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double, std::milli> tempo_imprimir_lista =
         fim_imprime_lista - inicio_imprime_lista;
@@ -110,7 +112,6 @@ void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado) {
 }
 
 int main() {
-    // Gera testes para todas as 8 combinações de tipos de grafo
     for (int i = 0; i < 8; ++i) {
         bool direcionado = bool(i & 1);
         bool ponderado = bool(i & 2);
