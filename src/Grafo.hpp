@@ -193,27 +193,27 @@ class Grafo {
             std::cout << labels[i] << " ";
     }
 
-    bool BFS(int v){
+    bool caminhamentoEmLargura(int v){
         if(rotulado){
             int indiceV = buscarLabel(v);
             if(indiceV == -1)
                 return false;
                 
-            return impl->BFS(indiceV);
+            return impl->caminhamentoEmLargura(indiceV);
         } else{
-            return impl->BFS(v);
+            return impl->caminhamentoEmLargura(v);
         }
     }
 
-    bool DFS(int v){
+    bool caminhamentoEmProfundidade(int v){
         if(rotulado){
             int indiceV = buscarLabel(v);
             if(indiceV == -1)
                 return false;
                 
-            return impl->DFS(indiceV);
+            return impl->caminhamentoEmProfundidade(indiceV);
         } else{
-            return impl->DFS(v);
+            return impl->caminhamentoEmProfundidade(v);
         }
     }
 };

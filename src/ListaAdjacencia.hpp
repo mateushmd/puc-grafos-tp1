@@ -21,9 +21,9 @@
 
 #include <cstring>
 #include <iostream>
-#include <stdlib.h>
 #include <queue>
 #include <stack>
+#include <stdlib.h>
 
 #include "Implementacao.hpp"
 
@@ -298,78 +298,70 @@ class ListaAdjacencia : public Implementacao {
      * @return Quantidade de vértices atualmente no grafo.
      */
     int getTamanho() override { return this->tamanho; }
-    bool DFS(int v) override { std::cout << "\nCaminhamento em profundidade começando por: " << v << std::endl;
+
+    bool caminhamentoEmProfundidade(int v) override {
         bool *marca = new bool[tamanho];
-        for(int i=0;i<tamanho;i++){
-            marca[i]=false;
+        for (int i = 0; i < tamanho; i++) {
+            marca[i] = false;
         }
-        //marca todos vértices como falso
+
         std::stack<int> *fila = new std::stack<int>;
-        int i=0;
-        int j=0;
+        int i = 0, j = 0;
         fila->push(v);
-        //std::cout << "Fila 1: " << fila->front();
-        do{
-            //insere na fila
-            //label[8] = 3 significa q o 4º vértice (vertice[3]) chama 3
-            //vertice[3] tem a posição do 4º vértice na lista de adjacência (arestas[vertice[3]])
+
+        while (!fila->empty()) {
+            // insere na fila
+            // label[8] = 3 significa q o 4º vértice (vertice[3]) chama 3
+            // vertice[3] tem a posição do 4º vértice na lista de adjacência (are
+            // tas[vertice[3]])
             int y = fila->top();
             fila->pop();
-            //olha se o vertice está marcado
-            if(!marca[y]){
+            if (!marca[y]) {
                 std::cout << y << " ";
-                //salva os vizinhos na fila
                 int x = vertices[y];
-                //std::cout << "\nVizinhos: " << arestas[x].vertice << std::endl << std::endl;
-                while(arestas[x].vertice != arestas[vertices[y+1]].vertice && x<tArestas){
-                    //std::cout << "Vizinhos de " << y << ": " << arestas[x].vertice << std::endl;
+                while (x < tArestas &&
+                       (y + 1 == tamanho || x < vertices[y + 1])) {
                     fila->push(arestas[x].vertice);
                     x++;
                 }
-                //marca
                 marca[y] = true;
             }
-            //
-        }while(!fila->empty());
+        }
+
         delete[] marca;
         delete fila;
-    return true;}
+        return true;
+    }
 
-    bool BFS(int v) override { 
-        std::cout << "\nCaminhamento por nivel começando por: " << v << std::endl;
+    bool caminhamentoEmLargura(int v) override {
         bool *marca = new bool[tamanho];
-        for(int i=0;i<tamanho;i++){
-            marca[i]=false;
+        for (int i = 0; i < tamanho; i++) {
+            marca[i] = false;
         }
-        //marca todos vértices como falso
         std::queue<int> *fila = new std::queue<int>;
-        int i=0;
-        int j=0;
+        int i = 0, j = 0;
         fila->push(v);
-        //std::cout << "Fila 1: " << fila->front();
-        do{
-            //insere na fila
-            //label[8] = 3 significa q o 4º vértice (vertice[3]) chama 3
-            //vertice[3] tem a posição do 4º vértice na lista de adjacência (arestas[vertice[3]])
+
+        while (!fila->empty()) {
+            // insere na fila
+            // label[8] = 3 significa q o 4º vértice (vertice[3]) chama 3
+            // vertice[3] tem a posição do 4º vértice na lista de adjacência (are
+            // tas[vertice[3]])
             int y = fila->front();
             fila->pop();
-            //olha se o vertice está marcado
-            if(!marca[y]){
-                std::cout <<  y << " ";
-                //salva os vizinhos na fila
+            if (!marca[y]) {
                 int x = vertices[y];
-                //std::cout << "\nVizinhos: " << arestas[x].vertice << std::endl << std::endl;
-                while(arestas[x].vertice != arestas[vertices[y+1]].vertice && x<tArestas){
-                    //std::cout << "Vizinhos de " << y << ": " << arestas[x].vertice << std::endl;
+                while (x < tArestas && (y + 1 == tamanho ||
+                       x < vertices[y + 1])) {
                     fila->push(arestas[x].vertice);
                     x++;
                 }
-                //marca
                 marca[y] = true;
             }
-            //
-        }while(!fila->empty());
+        }
+
         delete[] marca;
         delete fila;
-    return true;}
+        return true;
+    }
 };

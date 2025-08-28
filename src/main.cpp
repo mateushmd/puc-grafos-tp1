@@ -4,137 +4,93 @@
 #include <chrono>
 #include <iostream>
 
-#define TAM 50 // Reduzido para não poluir excessivamente o terminal
+#define TAM 5
 
-/**
- * @brief Testa e compara as implementações de Matriz e Lista de Adjacência para
- * um dado tipo de grafo.
- *
- * @param direcionado Se o grafo é direcionado.
- * @param ponderado Se o grafo é ponderado.
- * @param rotulado Se o grafo é rotulado.
- */
-void testarImplementacoes(bool direcionado, bool ponderado, bool rotulado,
-                          bool medirImpressoes) {
-    std::cout << "\n==========================================================="
-                 "====================================="
-              << std::endl;
-    std::cout << "\t\t\tTestando Grafo: "
-              << (direcionado ? "Direcionado" : "Não-Direcionado") << ", "
-              << (ponderado ? "Ponderado" : "Não-Ponderado") << ", "
-              << (rotulado ? "Rotulado" : "Não-Rotulado");
-    std::cout << "\n==========================================================="
-                 "=====================================\n"
-              << std::endl;
+void testarImplementacao(Implementacao *impl, const std::string &nome,
+                         bool direcionado, bool medirImpressoes) {
+    const auto inicio_gera = std::chrono::high_resolution_clock::now();
 
-    // Testa matriz de adjacência
-
-    const auto inicio_gera_matriz = std::chrono::high_resolution_clock::now();
-
-    MatrizAdjacencia *matriz = new MatrizAdjacencia();
-    Grafo *grafoMatriz = new Grafo(matriz, direcionado, ponderado, rotulado);
+    Grafo *grafo = new Grafo(impl, direcionado, false, false);
 
     for (int i = 0; i < TAM; i++)
-        grafoMatriz->adicionarVertice(i);
+        grafo->adicionarVertice(i);
 
     for (int i = 0; i < TAM; i++) {
         for (int j = i + 1; j < TAM; j++) {
             if ((i + j) % (TAM / 2) == 0)
-                grafoMatriz->adicionarAresta(i, j, i + j);
+                grafo->adicionarAresta(i, j, i + j);
         }
     }
 
-    const auto fim_gera_matriz = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> tempo_imprimir_matriz =
+    const auto fim_gera = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> tempo_gerar =
+        fim_gera - inicio_gera;
+
+    std::chrono::duration<double, std::milli> tempo_imprimir =
         std::chrono::milliseconds::zero();
-
-    std::cout << "Matriz de Adjacência" << std::endl; 
-
     if (medirImpressoes) {
-        const auto inicio_imprime_matriz =
-            std::chrono::high_resolution_clock::now();
-        grafoMatriz->mostrar();
-        const auto fim_imprime_matriz =
-            std::chrono::high_resolution_clock::now();
-
-        tempo_imprimir_matriz = fim_imprime_matriz - inicio_imprime_matriz;
+        const auto inicio_imprime = std::chrono::high_resolution_clock::now();
+        grafo->mostrar();
+        const auto fim_imprime = std::chrono::high_resolution_clock::now();
+        tempo_imprimir = fim_imprime - inicio_imprime;
     }
 
-    std::chrono::duration<double, std::milli> tempo_gerar_matriz =
-        fim_gera_matriz - inicio_gera_matriz;
+    const auto inicio_largura = std::chrono::high_resolution_clock::now();
+    grafo->caminhamentoEmLargura(0);
+    const auto fim_largura = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> tempo_largura =
+        fim_largura - inicio_largura;
 
-    std::cout << "\nTempo para gerar: " << tempo_gerar_matriz.count() << " ms"
+    const auto inicio_profundidade = std::chrono::high_resolution_clock::now();
+    grafo->caminhamentoEmProfundidade(0);
+    const auto fim_profundidade = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> tempo_profundidade =
+        fim_profundidade - inicio_profundidade;
+
+    std::cout << nome << std::endl;
+    std::cout << "\nTempo para gerar: " << tempo_gerar.count() << " ms"
               << std::endl;
-
     if (medirImpressoes)
-        std::cout << "\nTempo para exibir: " << tempo_imprimir_matriz.count()
-                  << " ms" << std::endl;
-
-    std::cout << "\nTempo total: "
-              << tempo_imprimir_matriz.count() + tempo_gerar_matriz.count()
+        std::cout << "\nTempo para exibir: " << tempo_imprimir.count() << " ms"
+                  << std::endl;
+    std::cout << "\nTempo do caminhamento em largura: " << tempo_largura.count()
               << " ms" << std::endl;
-    delete grafoMatriz;
-
-    std::cout << "\n-----------------------------------------------------------"
-                 "-------------------------------------\n"
-              << std::endl;
-
-    // Testa lista de adjacência
-
-    const auto inicio_gera_lista = std::chrono::high_resolution_clock::now();
-
-    ListaAdjacencia *lista = new ListaAdjacencia();
-    Grafo *grafoLista = new Grafo(lista, direcionado, ponderado, rotulado);
-
-    for (int i = 0; i < TAM; i++)
-        grafoLista->adicionarVertice(i);
-
-    for (int i = 0; i < TAM; i++) {
-        for (int j = i + 1; j < TAM; j++) {
-            if ((i + j) % (TAM / 2) == 0)
-                grafoLista->adicionarAresta(i, j, i + j);
-        }
-    }
-
-    const auto fim_gera_lista = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double, std::milli> tempo_imprimir_lista =
-        std::chrono::milliseconds::zero();
-
-    std::cout << "Lista de Adjacência" << std::endl;
-
-    if (medirImpressoes) {
-        const auto inicio_imprime_lista =
-            std::chrono::high_resolution_clock::now();
-        grafoLista->mostrar();
-        const auto fim_imprime_lista =
-            std::chrono::high_resolution_clock::now();
-        tempo_imprimir_lista = fim_imprime_lista - inicio_imprime_lista;
-    }
-
-    std::chrono::duration<double, std::milli> tempo_gerar_lista =
-        fim_gera_lista - inicio_gera_lista;
-
-    std::cout << "\nTempo para gerar: " << tempo_gerar_lista.count() << " ms"
-              << std::endl;
-
-    if (medirImpressoes)
-        std::cout << "\nTempo para exibir: " << tempo_imprimir_lista.count()
-                  << " ms" << std::endl;
-
+    std::cout << "\nTempo do caminhamento em profundidade: "
+              << tempo_profundidade.count() << " ms" << std::endl;
     std::cout << "\nTempo total: "
-              << tempo_imprimir_lista.count() + tempo_gerar_lista.count()
+              << tempo_imprimir.count() + tempo_gerar.count() +
+                     tempo_largura.count() + tempo_profundidade.count()
               << " ms" << std::endl;
 
-    delete grafoLista;
+    delete grafo;
 }
 
 int main() {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 2; ++i) {
         bool direcionado = bool(i & 1);
-        bool ponderado = bool(i & 2);
-        bool rotulado = bool(i & 4);
-        testarImplementacoes(direcionado, ponderado, rotulado, false);
+
+        std::cout
+            << "\n==========================================================="
+               "====================================="
+            << std::endl;
+        std::cout << "\t\t\tTestando Grafo: "
+                  << (direcionado ? "Direcionado" : "Não-Direcionado") << ", "
+                  << "Não-Ponderado, Não-Rotulado";
+        std::cout
+            << "\n==========================================================="
+               "=====================================\n"
+            << std::endl;
+
+        testarImplementacao(new MatrizAdjacencia(), "Matriz de Adjacência", 
+                            direcionado, true);
+
+        std::cout
+            << "\n-----------------------------------------------------------"
+               "-------------------------------------\n"
+            << std::endl;
+
+        testarImplementacao(new ListaAdjacencia(), "Lista de Adjacência", 
+                            direcionado, true);
     }
 
     return 0;

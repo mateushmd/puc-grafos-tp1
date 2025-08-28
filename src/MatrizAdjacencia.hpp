@@ -34,7 +34,6 @@
 #include <iostream>
 #include <queue>
 #include <stack>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "Implementacao.hpp"
@@ -228,9 +227,9 @@ class MatrizAdjacencia : public Implementacao {
         return false;
     }
 
-    bool BFS(int v) {
+    bool caminhamentoEmLargura(int v) override {
         std::queue<int> *fila = new std::queue<int>();
-        bool *coresVertices = new bool(tamanho);
+        bool *coresVertices = new bool[tamanho];
         for (int i = 0; i < tamanho; i++)
             coresVertices[i] = false;
         fila->push(v);
@@ -239,23 +238,23 @@ class MatrizAdjacencia : public Implementacao {
             fila->pop();
 
             if (!coresVertices[verticeAtual]) {
-                std::cout << verticeAtual << " ";
                 for (int i = 0; i < tamanho; i++) {
                     if (arestas[verticeAtual][i] != -1) {
                         fila->push(i);
                     }
                 }
             }
-            delete fila;
-            delete[] coresVertices;
             coresVertices[verticeAtual] = true;
         }
+
+        delete fila;
+        delete[] coresVertices;
         return true;
     }
 
-    bool DFS(int v) {
+    bool caminhamentoEmProfundidade(int v) override {
         std::stack<int> *pilha = new std::stack<int>();
-        bool *coresVertices = new bool(tamanho);
+        bool *coresVertices = new bool[tamanho];
         for (int i = 0; i < tamanho; i++)
             coresVertices[i] = false;
         pilha->push(v);
@@ -264,7 +263,6 @@ class MatrizAdjacencia : public Implementacao {
             pilha->pop();
 
             if (!coresVertices[verticeAtual]) {
-                std::cout << verticeAtual << " ";
                 for (int i = 0; i < tamanho; i++) {
                     if (arestas[verticeAtual][i] != -1) {
                         pilha->push(i);
