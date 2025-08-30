@@ -279,14 +279,12 @@ class ListaAdjacencia : public Implementacao {
             if (vertices[u] == -1)
                 vertices[u] = endPos;
 
-            arestas[endPos].vertice = v;
-            arestas[endPos].peso = p;
+            
         } else if (vertices[u] == -1)
             vertices[u] = tArestas;
-        else {
-            arestas[endPos].vertice = v;
-            arestas[endPos].peso = p;
-        }
+
+        arestas[endPos].vertice = v;
+        arestas[endPos].peso = p;
         tArestas++;
 
         return true;
@@ -317,12 +315,18 @@ class ListaAdjacencia : public Implementacao {
             int y = fila->top();
             fila->pop();
             if (!marca[y]) {
-                std::cout << y << " ";
                 int x = vertices[y];
-                while (x < tArestas &&
-                       (y + 1 == tamanho || x < vertices[y + 1])) {
-                    fila->push(arestas[x].vertice);
-                    x++;
+                if(x != -1){
+                    int endPos = tArestas;
+                    for(int i = y+1; i < tamanho; i++)
+                        if(vertices[i] != -1){
+                            endPos = vertices[i];
+                            i = tamanho;
+                        }
+                    while (x < endPos) {
+                        fila->push(arestas[x].vertice);
+                        x++;
+                    }
                 }
                 marca[y] = true;
             }
@@ -351,10 +355,17 @@ class ListaAdjacencia : public Implementacao {
             fila->pop();
             if (!marca[y]) {
                 int x = vertices[y];
-                while (x < tArestas && (y + 1 == tamanho ||
-                       x < vertices[y + 1])) {
-                    fila->push(arestas[x].vertice);
-                    x++;
+                if(x != -1){
+                    int endPos = tArestas;
+                    for(int i = y+1; i < tamanho; i++)
+                        if(vertices[i] != -1){
+                            endPos = vertices[i];
+                            i = tamanho;
+                        }
+                    while (x < endPos) {
+                        fila->push(arestas[x].vertice);
+                        x++;
+                    }
                 }
                 marca[y] = true;
             }
