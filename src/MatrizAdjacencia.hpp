@@ -238,7 +238,6 @@ class MatrizAdjacencia : public Implementacao {
             fila->pop();
 
             if (!coresVertices[verticeAtual]) {
-                std::cout << verticeAtual << " ";
                 for (int i = 0; i < tamanho; i++) {
                     if (arestas[i][verticeAtual] != -1) {
                         fila->push(i);
@@ -247,8 +246,6 @@ class MatrizAdjacencia : public Implementacao {
             }
             coresVertices[verticeAtual] = true;
         }
-
-        std::cout << std::endl;
 
         delete fila;
         delete[] coresVertices;
@@ -266,7 +263,6 @@ class MatrizAdjacencia : public Implementacao {
             pilha->pop();
 
             if (!coresVertices[verticeAtual]) {
-                std::cout << verticeAtual << " ";
                 for (int i = 0; i < tamanho; i++) {
                     if (arestas[i][verticeAtual] != -1) {
                         pilha->push(i);
@@ -275,7 +271,6 @@ class MatrizAdjacencia : public Implementacao {
             }
             coresVertices[verticeAtual] = true;
         }
-        std::cout << std::endl;
 
         delete[] coresVertices;
         delete pilha;
