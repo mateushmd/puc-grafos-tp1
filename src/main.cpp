@@ -1,31 +1,50 @@
 #include "Grafo.hpp"
 #include "ListaAdjacencia.hpp"
 #include "MatrizAdjacencia.hpp"
+#include <algorithm>
 #include <chrono>
-#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <random>
+#include <vector>
 
-#define TAM 5
+#define TAM 300
 
-void testarImplementacao(Implementacao *impl, const std::string &nome,
-                         bool direcionado, bool medirImpressoes) {
-    const auto inicio_gera = std::chrono::high_resolution_clock::now();
+std::vector<std::pair<int, int>> *gerarArestasDenso(bool direcionado) {
+    std::vector<std::pair<int, int>> *arestas =
+        new std::vector<std::pair<int, int>>();
 
-    Grafo *grafo = new Grafo(impl, direcionado, false, false);
-
-    for (int i = 0; i < TAM; i++)
-        grafo->adicionarVertice(i);
-
-    for (int i = 0; i < TAM; i++) {
-        for (int j = i + 1; j < TAM; j++) {
-            if ((i + j) % (TAM / 2) == 0)
-                grafo->adicionarAresta(i, j, i + j);
+    if (!direcionado) {
+        for (int i = 0; i < TAM; i++) {
+            for (int j = i + 1; j < TAM; j++) {
+                arestas->push_back({i, j});
+            }
+        }
+    } else {
+        for (int i = 0; i < TAM; i++) {
+            for (int j = 0; j < TAM; j++) {
+                if (i != j)
+                    arestas->push_back({i, j});
+            }
         }
     }
 
-    const auto fim_gera = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> tempo_gerar =
-        fim_gera - inicio_gera;
+    return arestas;
+}
 
+std::vector<std::pair<int, int>> *gerarArestasEsparso(bool direcionado) {
+    auto arestas = gerarArestasDenso(direcionado);
+
+    std::mt19937 rng(std::time(nullptr));
+    std::shuffle(arestas->begin(), arestas->end(), rng);
+
+    int max = TAM / 3;
+    arestas->erase(arestas->begin() + max, arestas->end());
+    return arestas;
+}
+
+void testarImplementacao(Grafo *grafo, const std::string &nome,
+                         bool medirImpressoes) {
     std::chrono::duration<double, std::milli> tempo_imprimir =
         std::chrono::milliseconds::zero();
     if (medirImpressoes) {
@@ -35,21 +54,32 @@ void testarImplementacao(Implementacao *impl, const std::string &nome,
         tempo_imprimir = fim_imprime - inicio_imprime;
     }
 
-    const auto inicio_largura = std::chrono::high_resolution_clock::now();
-    grafo->caminhamentoEmLargura(0);
-    const auto fim_largura = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> tempo_largura =
-        fim_largura - inicio_largura;
+    std::chrono::duration<double, std::milli> soma_tempos =
+        std::chrono::milliseconds::zero();
+    for (int i = 0; i < 100; i++) {
+        const auto inicio_largura = std::chrono::high_resolution_clock::now();
+        grafo->caminhamentoEmLargura(0);
+        const auto fim_largura = std::chrono::high_resolution_clock::now();
+        soma_tempos += fim_largura - inicio_largura;
+    }
+    std::chrono::duration<double, std::milli> tempo_largura = soma_tempos / 100;
 
-    const auto inicio_profundidade = std::chrono::high_resolution_clock::now();
-    grafo->caminhamentoEmProfundidade(0);
-    const auto fim_profundidade = std::chrono::high_resolution_clock::now();
+    soma_tempos = std::chrono::milliseconds::zero();
+    for (int i = 0; i < 100; i++) {
+        const auto inicio_profundidade =
+            std::chrono::high_resolution_clock::now();
+        grafo->caminhamentoEmProfundidade(0);
+        const auto fim_profundidade = std::chrono::high_resolution_clock::now();
+        soma_tempos += fim_profundidade - inicio_profundidade;
+    }
     std::chrono::duration<double, std::milli> tempo_profundidade =
-        fim_profundidade - inicio_profundidade;
+        soma_tempos / 100;
 
-    std::cout << nome << std::endl;
-    std::cout << "\nTempo para gerar: " << tempo_gerar.count() << " ms"
+    std::size_t tamanhoKb = grafo->getMemoriaOcupada() / 1024;
+
+    std::cout << "\nEspaço ocupado em memória: " << tamanhoKb << " KB"
               << std::endl;
+
     if (medirImpressoes)
         std::cout << "\nTempo para exibir: " << tempo_imprimir.count() << " ms"
                   << std::endl;
@@ -58,16 +88,38 @@ void testarImplementacao(Implementacao *impl, const std::string &nome,
     std::cout << "\nTempo do caminhamento em profundidade: "
               << tempo_profundidade.count() << " ms" << std::endl;
     std::cout << "\nTempo total: "
-              << tempo_imprimir.count() + tempo_gerar.count() +
-                     tempo_largura.count() + tempo_profundidade.count()
+              << tempo_imprimir.count() + tempo_largura.count() +
+                     tempo_profundidade.count()
               << " ms" << std::endl;
-
-    delete grafo;
 }
 
 int main() {
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 4; ++i) {
         bool direcionado = bool(i & 1);
+        bool denso = bool(i & 2);
+
+        Grafo *gMatriz =
+            new Grafo(new MatrizAdjacencia(), direcionado, false, false);
+        Grafo *gLista =
+            new Grafo(new ListaAdjacencia(), direcionado, false, false);
+
+        std::vector<std::pair<int, int>> *arestas = nullptr;
+        if (denso)
+            arestas = gerarArestasDenso(direcionado);
+        else
+            arestas = gerarArestasEsparso(direcionado);
+
+        for (int i = 0; i < TAM; i++) {
+            gMatriz->adicionarVertice(i);
+            gLista->adicionarVertice(i);
+        }
+
+        for (int i = 0; i < arestas->size(); i++) {
+            gMatriz->adicionarAresta(arestas->at(i).first,
+                                     arestas->at(i).second);
+            gLista->adicionarAresta(arestas->at(i).first,
+                                    arestas->at(i).second);
+        }
 
         std::cout
             << "\n==========================================================="
@@ -75,22 +127,24 @@ int main() {
             << std::endl;
         std::cout << "\t\t\tTestando Grafo: "
                   << (direcionado ? "Direcionado" : "Não-Direcionado") << ", "
-                  << "Não-Ponderado, Não-Rotulado";
+                  << "Não-Ponderado, Não-Rotulado, "
+                  << (denso ? "Denso" : "Esparso");
         std::cout
             << "\n==========================================================="
                "=====================================\n"
             << std::endl;
 
-        testarImplementacao(new MatrizAdjacencia(), "Matriz de Adjacência", 
-                            direcionado, true);
+        testarImplementacao(gMatriz, "Matriz de Adjacência", false);
 
         std::cout
             << "\n-----------------------------------------------------------"
                "-------------------------------------\n"
             << std::endl;
 
-        testarImplementacao(new ListaAdjacencia(), "Lista de Adjacência", 
-                            direcionado, true);
+        testarImplementacao(gLista, "Lista de Adjacência", false);
+
+        delete gMatriz;
+        delete gLista;
     }
 
     return 0;

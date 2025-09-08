@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <cstddef>
+
 class Implementacao {
   protected:
     /**
@@ -54,4 +56,6 @@ class Implementacao {
     virtual int getTamanho() = 0;
     virtual bool caminhamentoEmLargura(int v) = 0;
     virtual bool caminhamentoEmProfundidade(int v) = 0;
+
+    virtual std::size_t getMemoriaOcupada() = 0;
 };

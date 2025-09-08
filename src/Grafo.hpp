@@ -188,32 +188,34 @@ class Grafo {
      */
     int getTamanho() { return impl->getTamanho(); }
 
-    void print (){
-        for(int i = 0; i < tLabels; i++)
+    void print() {
+        for (int i = 0; i < tLabels; i++)
             std::cout << labels[i] << " ";
     }
 
-    bool caminhamentoEmLargura(int v){
-        if(rotulado){
+    bool caminhamentoEmLargura(int v) {
+        if (rotulado) {
             int indiceV = buscarLabel(v);
-            if(indiceV == -1)
+            if (indiceV == -1)
                 return false;
-                
+
             return impl->caminhamentoEmLargura(indiceV);
-        } else{
+        } else {
             return impl->caminhamentoEmLargura(v);
         }
     }
 
-    bool caminhamentoEmProfundidade(int v){
-        if(rotulado){
+    bool caminhamentoEmProfundidade(int v) {
+        if (rotulado) {
             int indiceV = buscarLabel(v);
-            if(indiceV == -1)
+            if (indiceV == -1)
                 return false;
-                
+
             return impl->caminhamentoEmProfundidade(indiceV);
-        } else{
+        } else {
             return impl->caminhamentoEmProfundidade(v);
         }
     }
+
+    std::size_t getMemoriaOcupada() { return impl->getMemoriaOcupada(); }
 };

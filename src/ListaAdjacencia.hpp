@@ -24,6 +24,7 @@
 #include <queue>
 #include <stack>
 #include <stdlib.h>
+#include <cstddef>
 
 #include "Implementacao.hpp"
 
@@ -279,7 +280,6 @@ class ListaAdjacencia : public Implementacao {
             if (vertices[u] == -1)
                 vertices[u] = endPos;
 
-            
         } else if (vertices[u] == -1)
             vertices[u] = tArestas;
 
@@ -316,10 +316,10 @@ class ListaAdjacencia : public Implementacao {
             fila->pop();
             if (!marca[y]) {
                 int x = vertices[y];
-                if(x != -1){
+                if (x != -1) {
                     int endPos = tArestas;
-                    for(int i = y+1; i < tamanho; i++)
-                        if(vertices[i] != -1){
+                    for (int i = y + 1; i < tamanho; i++)
+                        if (vertices[i] != -1) {
                             endPos = vertices[i];
                             i = tamanho;
                         }
@@ -355,10 +355,10 @@ class ListaAdjacencia : public Implementacao {
             fila->pop();
             if (!marca[y]) {
                 int x = vertices[y];
-                if(x != -1){
+                if (x != -1) {
                     int endPos = tArestas;
-                    for(int i = y+1; i < tamanho; i++)
-                        if(vertices[i] != -1){
+                    for (int i = y + 1; i < tamanho; i++)
+                        if (vertices[i] != -1) {
                             endPos = vertices[i];
                             i = tamanho;
                         }
@@ -374,5 +374,13 @@ class ListaAdjacencia : public Implementacao {
         delete[] marca;
         delete fila;
         return true;
+    }
+
+    std::size_t getMemoriaOcupada() override {
+        std::size_t t = sizeof(int *);
+        t += sizeof(int) * tamanho;
+        t += sizeof(tupla *);
+        t += sizeof(tupla) * tArestas;
+        return t;
     }
 };

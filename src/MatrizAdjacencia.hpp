@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 #include <queue>
 #include <stack>
@@ -277,10 +278,17 @@ class MatrizAdjacencia : public Implementacao {
         return true;
     }
 
+    int getTamanho() override { return tamanho; }
+
     /**
      * @brief Obtém o número de vértices do grafo.
      *
      * @return O tamanho atual (número de vértices) da matriz de adjacência.
      */
-    int getTamanho() override { return tamanho; }
+    std::size_t getMemoriaOcupada() override {
+        std::size_t t = sizeof(int **);
+        t += sizeof(int *) * tamanho;
+        t += sizeof(int) * tamanho * tamanho;
+        return t;
+    }
 };
